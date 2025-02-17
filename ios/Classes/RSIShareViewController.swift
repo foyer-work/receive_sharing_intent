@@ -15,7 +15,12 @@ open class RSIShareViewController: SLComposeServiceViewController {
     var hostAppBundleIdentifier = ""
     var appGroupId = ""
     var sharedMedia: [SharedMediaFile] = []
-
+    
+    // Add this property that subclasses can override
+    open var shareAction: ActionType {
+        return .ask  // Default to .ask
+    }
+    
     /// Override this method to return false if you don't want to redirect to host app automatically
     /// Default is true
     open func shouldAutoRedirect() -> Bool {
@@ -119,7 +124,8 @@ open class RSIShareViewController: SLComposeServiceViewController {
         sharedMedia.append(SharedMediaFile(
             path: item,
             mimeType: type == .text ? "text/plain": nil,
-            type: type
+            type: type,
+            action: shareAction
         ))
         if index == (content.attachments?.count ?? 0) - 1 {
             if shouldAutoRedirect() {
@@ -135,7 +141,8 @@ open class RSIShareViewController: SLComposeServiceViewController {
             sharedMedia.append(SharedMediaFile(
                 path: newPathDecoded,
                 mimeType: type == .image ? "image/png": nil,
-                type: type
+                type: type,
+                action: shareAction
             ))
         }
         if index == (content.attachments?.count ?? 0) - 1 {
@@ -161,14 +168,16 @@ open class RSIShareViewController: SLComposeServiceViewController {
                         mimeType: url.mimeType(),
                         thumbnail: thumbnailPathDecoded,
                         duration: videoInfo.duration,
-                        type: type
+                        type: type,
+                        action: shareAction
                     ))
                 }
             } else {
                 sharedMedia.append(SharedMediaFile(
                     path: newPathDecoded,
                     mimeType: url.mimeType(),
-                    type: type
+                    type: type,
+                    action: shareAction
                 ))
             }
         }

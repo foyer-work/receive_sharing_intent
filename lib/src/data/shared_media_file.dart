@@ -21,6 +21,9 @@ class SharedMediaFile {
   /// Post message iOS ONLY
   final String? message;
 
+  /// Action type
+  final ActionType action;
+
   SharedMediaFile({
     required this.path,
     required this.type,
@@ -28,6 +31,7 @@ class SharedMediaFile {
     this.duration,
     this.mimeType,
     this.message,
+    this.action = ActionType.ask,
   });
 
   SharedMediaFile.fromMap(Map<String, dynamic> json)
@@ -36,7 +40,8 @@ class SharedMediaFile {
         duration = json['duration'],
         type = SharedMediaType.fromValue(json['type']),
         mimeType = json['mimeType'],
-        message = json['message'];
+        message = json['message'],
+        action = ActionType.values.byName(json['action']);
 
   Map<String, dynamic> toMap() {
     return {
@@ -46,6 +51,7 @@ class SharedMediaFile {
       'type': type.value,
       'mimeType': mimeType,
       'message': message,
+      'action': action.name,
     };
   }
 }
@@ -64,4 +70,9 @@ enum SharedMediaType {
   static SharedMediaType fromValue(String value) {
     return SharedMediaType.values.firstWhere((e) => e.value == value);
   }
+}
+
+enum ActionType {
+  ask,
+  save,
 }

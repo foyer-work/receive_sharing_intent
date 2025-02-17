@@ -129,7 +129,8 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
                     thumbnail: getAbsolutePath(for: $0.thumbnail),
                     duration: $0.duration,
                     message: message,
-                    type: $0.type
+                    type: $0.type,
+                    action: $0.action
                 )
             }
             latestMedia = sharedMediaFiles
@@ -202,7 +203,6 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
     }
 }
 
-
 public class SharedMediaFile: Codable {
     var path: String
     var mimeType: String?
@@ -210,7 +210,7 @@ public class SharedMediaFile: Codable {
     var duration: Double? // video duration in milliseconds
     var message: String? // post message
     var type: SharedMediaType
-    
+    var action: ActionType
     
     public init(
         path: String,
@@ -218,13 +218,15 @@ public class SharedMediaFile: Codable {
         thumbnail: String? = nil,
         duration: Double? = nil,
         message: String?=nil,
-        type: SharedMediaType) {
+        type: SharedMediaType,
+        action: ActionType = .ask) {
             self.path = path
             self.mimeType = mimeType
             self.thumbnail = thumbnail
             self.duration = duration
             self.message = message
             self.type = type
+            self.action = action
         }
 }
 
@@ -266,6 +268,27 @@ public enum SharedMediaType: String, Codable, CaseIterable {
             return "public.file-url"
         case .url:
             return "public.url"
+        }
+    }
+}
+public enum ActionType: String, Codable {
+    case ask
+    case save
+    
+    public var toUTTypeIdentifier: String {
+        if #available(iOS 14.0, *) {
+            switch self {
+            case .ask:
+                return UTType.text.identifier
+            case .save:
+                return UTType.text.identifier
+            }
+        }
+        switch self {
+        case .ask:
+            return "public.text"
+        case .save:
+            return "public.text"
         }
     }
 }
