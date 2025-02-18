@@ -11,15 +11,13 @@ import MobileCoreServices
 import Photos
 
 @available(swift, introduced: 5.0)
-open class RSIShareViewController: SLComposeServiceViewController {
+open class RSIShareViewController: UIViewController {
     var hostAppBundleIdentifier = ""
     var appGroupId = ""
     var sharedMedia: [SharedMediaFile] = []
     
     // Add this property that subclasses can override
-    open var shareAction: ActionType {
-        return .ask  // Default to .ask
-    }
+    open var shareAction: ActionType = .ask
     
     /// Override this method to return false if you don't want to redirect to host app automatically
     /// Default is true
@@ -27,9 +25,9 @@ open class RSIShareViewController: SLComposeServiceViewController {
         return true
     }
     
-    open override func isContentValid() -> Bool {
-        return true
-    }
+//    open override func isContentValid() -> Bool {
+//        return true
+//    }
     
     open override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,12 +37,15 @@ open class RSIShareViewController: SLComposeServiceViewController {
     }
     
     // Redirect to host app when user click on Post
-    open override func didSelectPost() {
-        saveAndRedirect(message: contentText)
+//    open override func didSelectPost() {
+//        saveAndRedirect(message: contentText)
+//    }
+    
+    open func navigateToApp() {
+        processContent()
     }
     
-    open override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    func processContent() {
         
         // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
         if let content = extensionContext!.inputItems[0] as? NSExtensionItem {
@@ -95,10 +96,10 @@ open class RSIShareViewController: SLComposeServiceViewController {
         }
     }
     
-    open override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return []
-    }
+//    open override func configurationItems() -> [Any]! {
+//        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
+//        return []
+//    }
     
     private func loadIds() {
         // loading Share extension App Id
