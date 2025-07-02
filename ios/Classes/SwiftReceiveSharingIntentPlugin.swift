@@ -53,6 +53,15 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
         }
         return false
     }
+
+    public func hasMatchingSchemePrefixForDeeplink(url: URL?) -> Bool {
+        guard let url = url else {
+            return false
+        }
+        let expectedHost = "www.getmerlin.in"
+        let hasHost = url.host == expectedHost
+        return hasHost
+    }
     
     // This is the function called on app startup with a shared link if the app had been closed already.
     // It is called as the launch process is finishing and the app is almost ready to run.
@@ -65,6 +74,9 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
             if (hasMatchingSchemePrefix(url: url)) {
                 return handleUrl(url: url, setInitialData: true)
             }
+            if (hasMatchingSchemePrefixForDeeplink(url: url)) {
+                return handleDeeplink(url: url, setInitialData: true)
+            }
             return true
         } else if let activityDictionary = launchOptions[UIApplication.LaunchOptionsKey.userActivityDictionary] as? [AnyHashable: Any] {
             // Handle multiple URLs shared in
@@ -73,6 +85,9 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
                     if let url = userActivity.webpageURL {
                         if (hasMatchingSchemePrefix(url: url)) {
                             return handleUrl(url: url, setInitialData: true)
+                        }
+                        if (hasMatchingSchemePrefixForDeeplink(url: url)) {
+                            return handleDeeplink(url: url, setInitialData: true)
                         }
                         return true
                     }
@@ -91,6 +106,9 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
         if (hasMatchingSchemePrefix(url: url)) {
             return handleUrl(url: url, setInitialData: false)
         }
+        if (hasMatchingSchemePrefixForDeeplink(url: url)) {
+            return handleDeeplink(url: url, setInitialData: false)
+        }
         return false
     }
     
@@ -104,6 +122,9 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
         if let url = userActivity.webpageURL {
             if (hasMatchingSchemePrefix(url: url)) {
                 return handleUrl(url: url, setInitialData: true)
+            }
+            if (hasMatchingSchemePrefixForDeeplink(url: url)) {
+                return handleDeeplink(url: url, setInitialData: true)
             }
         }
         return false
@@ -142,6 +163,20 @@ public class SwiftReceiveSharingIntentPlugin: NSObject, FlutterPlugin, FlutterSt
         return true
     }
     
+    private func handleDeeplink(url: URL?, setInitialData: Bool) -> Bool {
+        latestMedia = [SharedMediaFile(
+            path: url?.absoluteString ?? "",
+            type: SharedMediaType.url,
+            action: ActionType.ask
+        )]
+        
+        if setInitialData {
+            initialMedia = latestMedia
+        }
+        
+        eventSinkMedia?(toJson(data: latestMedia))
+        return true
+    }
     
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         eventSinkMedia = events
